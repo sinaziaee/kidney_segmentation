@@ -14,6 +14,8 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from losses import DiceLoss, GeneralizedDiceLoss
 from torchvision import transforms
+import json
+
 
 # %%
 class DiceScore(nn.Module):
@@ -61,10 +63,6 @@ BATCH_SIZE = 32
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=config.PIN_MEMORY)
 valid_loader = DataLoader(valid_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=config.PIN_MEMORY)
 test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=config.PIN_MEMORY)
-
-# %%
-train_data_shape = next(iter(train_loader))[0].shape
-print(train_data_shape)
 
 # %%
 os.makedirs('final_result', exist_ok=True)
@@ -136,6 +134,13 @@ for i in outer_loop:
     history['train_loss'].append(avg_loss)
     history['valid_loss'].append(avg_valid_loss)
     history['dice_valid_score'].append(avg_valid_dice)
+    
+    history['train_loss'] = list(history['train_loss'])
+    history['valid_loss'] = list(history['valid_loss']) 
+    history['dice_valid_score'] = list(history['dice_valid_score'])
+    
+    with open(f'./final_result/history.json', 'w') as f:
+        json.dump(history, f)
         
     # torch.save(model.state_dict(), f'./final_result/unet_{i + 1}.pt')
 
