@@ -4,7 +4,7 @@ from torch.nn import functional as F
 import torch
 from torch.nn.init import xavier_normal_
 from torchsummary import summary
-from mcdropout import MCDropout2D
+# from mcdropout import MCDropout2D
 
 IMG_HEIGHT = 512
 IMG_WIDTH = 512
@@ -69,7 +69,8 @@ class Encoder(nn.Module):
         self.pool = nn.MaxPool2d(2)
         self.dropout = dropout
         if dropout:
-            self.dropOutlayer = MCDropout2D(dropout)
+            # self.dropOutlayer = MCDropout2D(dropout)
+            self.dropOutlayer = nn.Dropout2d(dropout)
     def forward(self, x):
         blockout = []
         for block in self.encBlocks[:-1]:

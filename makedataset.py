@@ -7,6 +7,10 @@ from torchvision import transforms
 
 
 class makeDataset(Dataset):
+    
+    def _calculate_total(self, path, kind):
+        return len(os.listdir(os.path.join(self.root, 'image')))
+    
     def __init__(self, kind, location, tuning=False, tune_size=0.1, transform=None, normalize=False):
         """
         kind must be either 'train' or 'valid'
@@ -18,7 +22,8 @@ class makeDataset(Dataset):
         self.tuning = tuning
         # self.total = 37250 if self.kind == 'train' else 7922
         # self.total = 13671 if self.kind == 'train' else 2560
-        self.total = 10389 if self.kind == 'train' else 1964
+        self.total = self._calculate_total(location, kind)
+        
         self.tune_list = []
         self.tune_cnt = 0
         self.transform = transform

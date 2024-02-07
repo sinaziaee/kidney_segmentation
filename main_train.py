@@ -19,35 +19,6 @@ import monai
 from monai.networks.nets.segresnet import SegResNet
 
 
-
-
-# class GeneralizedDiceLoss(nn.Module):
-#     def __init__(self, normalization='softmax', class_weights=None):
-#         super(GeneralizedDiceLoss, self).__init__()
-#         self.normalization = normalization
-#         self.class_weights = class_weights
-
-#     def forward(self, inputs, targets, smooth=1):
-#         if self.normalization == 'softmax':
-#             inputs = F.softmax(inputs, dim=1)
-
-#         targets = targets[:, 1:2, ...]
-#         inputs = torch.where(inputs[:, 1:2, ...] > 0.5, 1.0, 0.0)
-
-#         inputs = inputs.reshape(-1)
-#         targets = targets.reshape(-1)
-
-#         intersection = (inputs * targets).sum()
-
-#         if self.class_weights is not None:
-#             class_weights = torch.Tensor(self.class_weights).to(inputs.device)
-#             intersection = intersection * class_weights[1]  # Class 1 corresponds to the kidney
-
-#         dice = (2. * intersection + smooth) / (inputs.sum() + targets.sum() + smooth)
-
-#         return 1 - dice
-
-
 class DiceScore(nn.Module):
     def __init__(self, weight=None, size_average=True):
         super().__init__()
@@ -82,11 +53,11 @@ tr = transforms.Compose([
 # trainds = makeDataset(kind='train', location='data_npy', transform=tr)
 # validds = makeDataset(kind='valid', location='data_npy')
 
-trainds_augmented = makeDataset(kind='train', location='final_dataset', transform=tr)
-trainds_original = makeDataset(kind='train', location='final_dataset')
+trainds_augmented = makeDataset(kind='train', location='data_npy', transform=tr)
+trainds_original = makeDataset(kind='train', location='data_npy')
 trainds = torch.utils.data.ConcatDataset([trainds_augmented, trainds_original])
 
-validds = makeDataset(kind='valid', location='final_dataset')
+validds = makeDataset(kind='valid', location='data_npy')
 
 trainLoader = DataLoader(trainds, batch_size=config.BATCH_SIZE, shuffle=True,
                          pin_memory=config.PIN_MEMORY)
@@ -96,20 +67,20 @@ validLoader = DataLoader(validds, batch_size=config.BATCH_SIZE, shuffle=False,
 print(config.DEVICE)
 
 params = [0.001]
-os.makedirs('final_result8', exist_ok=True)
+os.makedirs('final_result11', exist_ok=True)
 for (lr_) in params:
     # Define Model################################################################################################
     # model = UNet(64, 5, use_xavier=True, use_batchNorm=True, dropout=0.5, retain_size=True, nbCls=2)
     # model = EffUNet(1, 5, use_xavier=True, use_batchNorm=True, dropout=0.5, retain_size=True, nbCls=2)
-    # model = EffUNet(1, 5, use_xavier=True, use_batchNorm=True, dropout=0.2, retain_size=True, nbCls=2)
+    model = EffUNet(1, 5, use_xavier=True, use_batchNorm=True, dropout=0.2, retain_size=True, nbCls=2)
     
-    model = SegResNet(
-    spatial_dims=2,
-    init_filters=16,
-    in_channels=1,
-    out_channels=2,
-    dropout_prob=0.2,
-    )
+    # model = SegResNet(
+    # spatial_dims=2,
+    # init_filters=16,
+    # in_channels=1,
+    # out_channels=2,
+    # dropout_prob=0.2,
+    # )
     
 
     # model = SegResNet(in_channels=1, num_classes=2, dropout_rate=0.2)
@@ -158,7 +129,6 @@ for (lr_) in params:
 
             pred = model(x)
             loss = dicelossfunc(pred, y)
-            # loss.requires_grad = True
             opt.zero_grad()
             loss.backward()
             opt.step()
@@ -202,19 +172,19 @@ for (lr_) in params:
                           'Valid_avg_loss': '{:.4f}'.format(avgvalidloss),
                           'Valid_avg_dice': '{:.4f}%'.format(100 * avgvaliddice)})
 
-        torch.save(model.state_dict(), './final_result8/unet_{}.pt'.format(e + 1))
-        with open('./final_result8/history_{}.pkl'.format(e + 1), 'wb') as f:
+        torch.save(model.state_dict(), './final_result11/unet_{}.pt'.format(e + 1))
+        with open('./final_result11/history_{}.pkl'.format(e + 1), 'wb') as f:
             pickle.dump(history, f)
             
         if avgvaliddice > max_avgvaliddice:
             max_avgvaliddice = avgvaliddice
-            torch.save(model.state_dict(), './final_result8/UNet.pt')
+            torch.save(model.state_dict(), './final_result11/UNet.pt')
 
     writer.flush()
     writer.close()
 
     print('Saving model...\n\n')
-    torch.save(model.state_dict(), './final_result8/UNet.pt')
+    torch.save(model.state_dict(), './final_result11/UNet.pt')
 
     print('Saving figure...\n\n')
     plt.style.use('ggplot')
@@ -225,10 +195,10 @@ for (lr_) in params:
     plt.xlabel('Number of Epoch')
     plt.ylabel('Dice Loss')
     plt.legend(loc='lower left')
-    plt.savefig('./final_result8/train_result.png')
+    plt.savefig('./final_result11/train_result.png')
 
     print('Saving History...\n\n')
-    with open('./final_result8/history.pkl', 'wb') as f:
+    with open('./final_result11/history.pkl', 'wb') as f:
         pickle.dump(history, f)
 
 print('***************End of System***************')

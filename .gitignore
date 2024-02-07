@@ -8,3 +8,7 @@ final_dataset/
 data/
 runs/
 kits19/
+3d_predictions/
+models/
+pred_img2/
+pred_img3/
