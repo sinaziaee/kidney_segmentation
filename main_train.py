@@ -14,6 +14,7 @@ from Losses import DiceLoss, GeneralizedDiceLoss
 from torchvision import transforms
 from eff_unet import EffUNet
 import torch.nn.functional as F
+from mcdropout import MCDropout2D
 # from segresnet import SegResNet
 import monai
 from monai.networks.nets.segresnet import SegResNet
@@ -58,16 +59,16 @@ trainds_original = makeDataset(kind='train', location='data_npy')
 trainds = torch.utils.data.ConcatDataset([trainds_augmented, trainds_original])
 
 validds = makeDataset(kind='valid', location='data_npy')
-
-trainLoader = DataLoader(trainds, batch_size=config.BATCH_SIZE, shuffle=True,
+BATCH_SIZE = 64
+trainLoader = DataLoader(trainds, batch_size=BATCH_SIZE, shuffle=True,
                          pin_memory=config.PIN_MEMORY)
-validLoader = DataLoader(validds, batch_size=config.BATCH_SIZE, shuffle=False,
+validLoader = DataLoader(validds, batch_size=BATCH_SIZE, shuffle=False,
                          pin_memory=config.PIN_MEMORY)
 
 print(config.DEVICE)
 
 params = [0.001]
-os.makedirs('final_result11', exist_ok=True)
+os.makedirs('final_result12', exist_ok=True)
 for (lr_) in params:
     # Define Model################################################################################################
     # model = UNet(64, 5, use_xavier=True, use_batchNorm=True, dropout=0.5, retain_size=True, nbCls=2)
@@ -97,7 +98,7 @@ for (lr_) in params:
 
     # Define History, optimizer, schedular, loss function########################################################
     history = {'train_loss': [], 'valid_loss': [], 'dice_valid_score': []}
-    num_train = int(len(trainds) // config.BATCH_SIZE)
+    num_train = int(len(trainds) // BATCH_SIZE)
     writer = SummaryWriter(log_dir='./runs/Train')
     opt = torch.optim.NAdam(model.parameters(), lr=lr_)
     schedular = ReduceLROnPlateau(opt, 'min', patience=5, factor=0.25, verbose=True)
@@ -108,9 +109,9 @@ for (lr_) in params:
 
     diceScore = DiceScore()
     #############################################################################################################
-
+    NO_EPOCH = 501
     # main train#################################################################################################
-    pbar = tqdm(range(config.N_EPOCHS), leave=False, position=0)
+    pbar = tqdm(range(NO_EPOCH), leave=False, position=0)
     max_avgvaliddice = 0
     for e in pbar:
         model.train()
@@ -172,19 +173,19 @@ for (lr_) in params:
                           'Valid_avg_loss': '{:.4f}'.format(avgvalidloss),
                           'Valid_avg_dice': '{:.4f}%'.format(100 * avgvaliddice)})
 
-        torch.save(model.state_dict(), './final_result11/unet_{}.pt'.format(e + 1))
-        with open('./final_result11/history_{}.pkl'.format(e + 1), 'wb') as f:
+        torch.save(model.state_dict(), './final_result12/unet_{}.pt'.format(e + 1))
+        with open('./final_result12/history_{}.pkl'.format(e + 1), 'wb') as f:
             pickle.dump(history, f)
             
         if avgvaliddice > max_avgvaliddice:
             max_avgvaliddice = avgvaliddice
-            torch.save(model.state_dict(), './final_result11/UNet.pt')
+            torch.save(model.state_dict(), './final_result12/UNet.pt')
 
     writer.flush()
     writer.close()
 
     print('Saving model...\n\n')
-    torch.save(model.state_dict(), './final_result11/UNet.pt')
+    torch.save(model.state_dict(), './final_result12/UNet.pt')
 
     print('Saving figure...\n\n')
     plt.style.use('ggplot')
@@ -195,10 +196,10 @@ for (lr_) in params:
     plt.xlabel('Number of Epoch')
     plt.ylabel('Dice Loss')
     plt.legend(loc='lower left')
-    plt.savefig('./final_result11/train_result.png')
+    plt.savefig('./final_result12/train_result.png')
 
     print('Saving History...\n\n')
-    with open('./final_result11/history.pkl', 'wb') as f:
+    with open('./final_result12/history.pkl', 'wb') as f:
         pickle.dump(history, f)
 
 print('***************End of System***************')
