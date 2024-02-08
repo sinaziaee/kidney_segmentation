@@ -9,7 +9,6 @@ class DecoderBlock(nn.Module):
         self.double_conv = nn.Sequential(
             nn.ConvTranspose2d(in_channels=in_channels, out_channels=out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(num_features= out_channels),
-            # nn.Dropout2d(p=0.2),
             MCDropout2D(p=dropout),
             nn.ReLU(),
             nn.ConvTranspose2d(in_channels=out_channels, out_channels=out_channels, kernel_size=3, padding=1),
