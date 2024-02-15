@@ -15,3 +15,7 @@ pred_img3/
 3d_mc_predictions/
 data_npy2/
 3d_original_padded_images/
+3d_predictions3/
+3d_zero_padded_images/
+data_npy3/
+data_npy4/

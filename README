@@ -1,0 +1,8 @@
+data_npy: original images. 
+Results: 91% dice on average
+data_npy2: expanded 3d images with 0 padding (third dimension slices)
+Results: 
+data_npy3: expanded 3d images with 0 padding (first dimension slices)
+Results: 
+data_npy4: expanded 3d images with 0 padding (second dimension slices)
+Results:

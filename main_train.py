@@ -18,26 +18,9 @@ from mcdropout import MCDropout2D
 # from segresnet import SegResNet
 import monai
 from monai.networks.nets.segresnet import SegResNet
+from my_dice_score import DiceScore
 
 
-class DiceScore(nn.Module):
-    def __init__(self, weight=None, size_average=True):
-        super().__init__()
-        self.normalization = nn.Softmax(dim=1)
-
-    def forward(self, inputs, targets, smooth=1):
-        inputs = self.normalization(inputs)
-
-        targets = targets[:, 1:2, ...]
-        inputs = torch.where(inputs[:, 1:2, ...] > 0.5, 1.0, 0.0)
-
-        inputs = inputs.reshape(-1)
-        targets = targets.reshape(-1)
-
-        intersection = (inputs * targets).sum()
-        dice = (2. * intersection + smooth) / (inputs.sum() + targets.sum() + smooth)
-
-        return dice
 
 
 # define Transform
@@ -62,16 +45,16 @@ trainds_original = makeDataset(kind='train', location=dataset_folder_path)
 trainds = torch.utils.data.ConcatDataset([trainds_augmented, trainds_original])
 
 validds = makeDataset(kind='valid', location=dataset_folder_path)
-BATCH_SIZE = 64
+BATCH_SIZE = 60                                                         
 trainLoader = DataLoader(trainds, batch_size=BATCH_SIZE, shuffle=True,
                          pin_memory=config.PIN_MEMORY)
 validLoader = DataLoader(validds, batch_size=BATCH_SIZE, shuffle=False,
                          pin_memory=config.PIN_MEMORY)
 
 print(config.DEVICE)
-
+output_folder = 'final_result16'
 params = [0.001]
-os.makedirs('final_result13', exist_ok=True)
+os.makedirs(output_folder, exist_ok=True)
 for (lr_) in params:
     # Define Model################################################################################################
     # model = UNet(64, 5, use_xavier=True, use_batchNorm=True, dropout=0.5, retain_size=True, nbCls=2)
@@ -112,7 +95,7 @@ for (lr_) in params:
 
     diceScore = DiceScore()
     #############################################################################################################
-    NO_EPOCH = 501
+    NO_EPOCH = 40
     # main train#################################################################################################
     pbar = tqdm(range(NO_EPOCH), leave=False, position=0)
     max_avgvaliddice = 0
@@ -176,19 +159,19 @@ for (lr_) in params:
                           'Valid_avg_loss': '{:.4f}'.format(avgvalidloss),
                           'Valid_avg_dice': '{:.4f}%'.format(100 * avgvaliddice)})
 
-        torch.save(model.state_dict(), './final_result13/unet_{}.pt'.format(e + 1))
-        with open('./final_result13/history_{}.pkl'.format(e + 1), 'wb') as f:
+        torch.save(model.state_dict(), './{}/unet_{}.pt'.format(output_folder, e + 1))
+        with open('./{}/history_{}.pkl'.format(output_folder, e + 1), 'wb') as f:
             pickle.dump(history, f)
             
         if avgvaliddice > max_avgvaliddice:
             max_avgvaliddice = avgvaliddice
-            torch.save(model.state_dict(), './final_result13/UNet.pt')
+            torch.save(model.state_dict(), f'./{output_folder}/UNet.pt')
 
     writer.flush()
     writer.close()
 
     print('Saving model...\n\n')
-    torch.save(model.state_dict(), './final_result13/UNet.pt')
+    torch.save(model.state_dict(), f'./{output_folder}/UNet.pt')
 
     print('Saving figure...\n\n')
     plt.style.use('ggplot')
@@ -199,10 +182,10 @@ for (lr_) in params:
     plt.xlabel('Number of Epoch')
     plt.ylabel('Dice Loss')
     plt.legend(loc='lower left')
-    plt.savefig('./final_result13/train_result.png')
+    plt.savefig(f'./{output_folder}/train_result.png')
 
     print('Saving History...\n\n')
-    with open('./final_result13/history.pkl', 'wb') as f:
+    with open(f'./{output_folder}/history.pkl', 'wb') as f:
         pickle.dump(history, f)
 
 print('***************End of System***************')
