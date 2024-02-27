@@ -1,24 +1,24 @@
-from makedataset import makeDataset
-from model import UNet
+from dataset.makedataset import makeDataset
+from models.unet import UNet
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-import config
+import utils.config as config
 import torch.nn as nn
 import pickle
 import os
 import matplotlib.pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from Losses import DiceLoss, GeneralizedDiceLoss
+from utils.Losses import DiceLoss, GeneralizedDiceLoss
 from torchvision import transforms
-from eff_unet import EffUNet
+from models.eff_unet import EffUNet
 import torch.nn.functional as F
-from mcdropout import MCDropout2D
+from models.mcdropout import MCDropout2D
 # from segresnet import SegResNet
 import monai
 from monai.networks.nets.segresnet import SegResNet
-from my_dice_score import DiceScore
+from utils.my_dice_score import DiceScore
 
 
 

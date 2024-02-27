@@ -1,3 +1,19 @@
+# Kidney Image Segmentation with 2D U-Net
+
+In medical imaging, accurate segmentation of kidney structures is crucial for various diagnostic and therapeutic purposes. One popular approach for automated kidney segmentation is utilizing convolutional neural networks (CNNs), particularly the U-Net architecture.
+
+The U-Net architecture, known for its success in biomedical image segmentation tasks, employs an encoder-decoder framework with skip connections to preserve spatial information. Specifically, the 2D U-Net variant is well-suited for segmenting kidney structures in two-dimensional medical images. The architecture of UNET is depicted below:
+
+# BEGIN: show_image_code
+show_image: true
+image_path: images\UNET_architecture.png
+# END: show_image_code
+
+In this project we will work on a variation of UNET architecture, called EffUNet, where the encoder is a efficient net model. The purpose of this project is to calculate the uncertainty maps of the model in inference to find the anomalies in kidneys, including tumors and cysts. We will train our model on a healthy dataset of kidneys and use the trained model on an unhealthy dataset of kidneys to infer and detect tumors. The first phase is detection of kidneys in images.
+The training is on two A6000 GPUS on a parallel mode and took approximately 20 Gigabytes of GPU from each machine.
+
+
+Early Results:
 data_npy: original images. 
 Results: 91% dice on average
 data_npy2: expanded 3d images with 0 padding (third dimension slices)
@@ -6,3 +22,5 @@ data_npy3: expanded 3d images with 0 padding (first dimension slices)
 Results: 
 data_npy4: expanded 3d images with 0 padding (second dimension slices)
 Results:
+
+
