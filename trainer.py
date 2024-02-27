@@ -47,9 +47,9 @@ trainds = torch.utils.data.ConcatDataset([trainds_augmented, trainds_original])
 validds = makeDataset(kind='valid', location=dataset_folder_path)
 BATCH_SIZE = 60                                                         
 trainLoader = DataLoader(trainds, batch_size=BATCH_SIZE, shuffle=True,
-                         pin_memory=config.PIN_MEMORY)
+                        pin_memory=config.PIN_MEMORY)
 validLoader = DataLoader(validds, batch_size=BATCH_SIZE, shuffle=False,
-                         pin_memory=config.PIN_MEMORY)
+                        pin_memory=config.PIN_MEMORY)
 
 print(config.DEVICE)
 output_folder = 'final_result16'
