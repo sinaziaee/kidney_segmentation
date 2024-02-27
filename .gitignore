@@ -19,3 +19,5 @@ data_npy2/
 3d_zero_padded_images/
 data_npy3/
 data_npy4/
+configs/
+kits23/
