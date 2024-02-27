@@ -4,6 +4,7 @@ In medical imaging, accurate segmentation of kidney structures is crucial for va
 
 The U-Net architecture, known for its success in biomedical image segmentation tasks, employs an encoder-decoder framework with skip connections to preserve spatial information. Specifically, the 2D U-Net variant is well-suited for segmenting kidney structures in two-dimensional medical images. The architecture of UNET is depicted below:
 
+![The](https://raw.githubusercontent.com/sinaziaee/kidney_segmentation/master/images\UNET_architecture.png)
 
 ![The architecture](https://raw.githubusercontent.com/sinaziaee/kidney_segmentation/master/images\UNET_architecture.png)
 
