@@ -6,7 +6,7 @@ The U-Net architecture, known for its success in biomedical image segmentation t
 
 ### U-Net Architecture
 
-# <!-- <img src='images\UNET_architecture.png' width='100%' > -->
+<!-- <img src='./images/UNET_architecture.png' width='100%' > -->
 
 ![The architecture](https://raw.githubusercontent.com/sinaziaee/kidney_segmentation/master/images/UNET_architecture.png)
 
